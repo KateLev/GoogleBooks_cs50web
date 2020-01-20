@@ -1,0 +1,26 @@
+
+Для запуска
+
+set FLASK_APP=application.py
+set DATABASE_URL=postgres://raodzgeefvysrp:75f54487f22672844059c173c2688e1fb8c00723de8967ae3b7fd472ffcca3bb@ec2-107-21-235-87.compute-1.amazonaws.com:5432/d386i5ratos175
+flask run
+
+http://127.0.0.1:5000/
+
+
+Информация по бд
+
+Host
+    ec2-107-21-235-87.compute-1.amazonaws.com
+Database
+    d386i5ratos175
+User
+    raodzgeefvysrp
+Port
+    5432
+Password
+    75f54487f22672844059c173c2688e1fb8c00723de8967ae3b7fd472ffcca3bb
+URI
+    postgres://raodzgeefvysrp:75f54487f22672844059c173c2688e1fb8c00723de8967ae3b7fd472ffcca3bb@ec2-107-21-235-87.compute-1.amazonaws.com:5432/d386i5ratos175
+Heroku CLI
+    heroku pg:psql postgresql-round-98742 --app books-app-for-cs50

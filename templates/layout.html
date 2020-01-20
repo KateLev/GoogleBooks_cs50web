@@ -1,0 +1,18 @@
+<!doctype html>
+<title>Books</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<div class="container">
+	<header>
+		{% block header %}{% endblock %}
+	</header>
+	
+	<h1>Web application for Google books</h1>
+	<hr>
+ 	{% block body %}{% endblock %}
+
+	<div class="footer">
+	<hr>
+		No rights reserved. Use it if you want ;-)
+	</div>
+</div>
