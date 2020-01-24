@@ -29,7 +29,7 @@ def index():
 	if 'username' in session:
 		username = session['username']
 		return render_template("index.html", username = username)
-	return render_template("login.html")
+	return render_template("index.html", username = "Anonymous user")
 
 	
 @app.route("/book")
@@ -72,5 +72,11 @@ def logout():
 	session['username'] = None
 	print (session['username'])
 	return render_template("index.html", username = session['username'])
+
+@app.route("/search", methods=["POST"])	
+def search():
+	searchFor = request.form.get("Search")
+	title = db.execute("SELECT title from books WHERE isbn=:isbn", {"isbn":searchFor}).fetchall()
 	
+	return render_template("index.html", title=title[0])
 
