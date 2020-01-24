@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
-  <h2>test</h2>
+  <h2>You are welcome</h2>
+  <p>You are welcome, {{ username }}</p>
+  <button class="btn btn-light" action="{{ 'logout' }}" method=post>Logout</button>
+  <a href="{{ url_for('logout') }}">logout</a>
 {% endblock %}

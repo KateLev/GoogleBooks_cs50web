@@ -1,5 +1,6 @@
 import os
 import requests
+import flask_login
 
 from flask import Flask, session, render_template, request
 from flask_session import Session
@@ -20,13 +21,14 @@ Session(app)
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
-
+current_user_id = 0
 
 @app.route("/", methods=["GET", "POST"])
-def index():
+def index():		
+	# check if user is currently logged in
 	if 'username' in session:
 		username = session['username']
-		return 'Logged in as ' + username
+		return render_template("index.html", username = username)
 	return render_template("login.html")
 
 	
@@ -35,7 +37,7 @@ def book():
 	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "tZLOtICC4yMSdeSIbKV0lQ", "isbns": "9780804139298"})
 	return res.json()
 	
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["POST", "GET"])
 def login():
 	return "You are not logged in"
 	
@@ -56,11 +58,19 @@ def reg_form():
 		db.commit()
 		
 		#А если будет без fetchone, то sqlacademy возвращает объект ResultProxy 
-		current_user_id = db.execute("SELECT id from users WHERE name=:name", {"name":username}).fetchone() 
-		print("current_user_id", current_user_id[0])
-		return render_template("index.html", current_user_id = current_user_id[0])
+		current_user_id = db.execute("SELECT id from users WHERE name=:name", {"name":username}).fetchone() 		
+		session["user_id"] = current_user_id[0]			
+		session['username'] = username		
+		return render_template("index.html")
 		
 	else:
 		return "The name is already exist"
-		
+
+@app.route("/logout", methods=["POST", "GET"])		
+def logout():
+	print(session.sid)
+	session['username'] = None
+	print (session['username'])
+	return render_template("index.html", username = session['username'])
+	
 
