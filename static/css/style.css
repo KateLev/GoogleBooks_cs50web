@@ -1,5 +1,5 @@
 h1{
-color:red;
+color:#007bff;
 }
 .page {
   font-family: Helvetica;
@@ -7,4 +7,29 @@ color:red;
 }
 .footer {
 text-align:center;
+}
+.formClass {
+min-height:25px;
+}
+.inlineButtons{
+margin-right:2px;
+float:right;
+}
+form.search input[type=text] {
+  padding: 10px;
+  font-size: 17px;
+  border: 1px solid grey;
+  float: left;
+  width: 80%;
+  background: #f1f1f1;
+}
+
+form.search::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+.searchButton{
+margin:0;
+display:inline-block;
 }

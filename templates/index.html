@@ -1,7 +1,71 @@
 {% extends "layout.html" %}
 {% block body %}
-  <h2>You are welcome</h2>
-  <p>You are welcome, {{ username }}</p>
-  <button class="btn btn-light" action="{{ 'logout' }}" method=post>Logout</button>
-  <a href="{{ url_for('logout') }}">logout</a>
+  <h2>You are welcome, {{ username }}</h2>
+    
+	<div class="formClass">
+		
+		<div class="inlineButtons">
+			<form action="{{ 'logout' }}" method=post>
+				<button class="btn btn-light" name="button">Logout</button>
+			</form>
+		</div>
+		
+		<div class="inlineButtons">
+			<form action="{{ 'reg' }}" method=post>
+				<button class="btn btn-primary" name="button">Registration</button>
+			</form>
+		</div>
+		
+		<div class="inlineButtons">
+			<form action="{{ 'login' }}" method=post>
+				<button class="btn btn-primary" name="button">Login</button>
+			</form>
+		</div>		
+				
+	</div>
+	
+	<form class="searchButton" action="{{ 'search' }}" method=post style="margin:auto;max-width:300px">
+			<input type="text" placeholder="Search.." name="Search">
+			<button class="btn btn-outline-info" type="submit">Search</button>
+	</form>
+	
+	{% if checker == 0 %}
+	
+		<p>Empty search field</p>
+	
+	{% elif checker == 1 %}	
+	
+		<p>No matches found</p>
+		
+	{% else %}
+		
+		<p>We found {{ lenght }} results for you.</p>
+		<table class="table">	
+			<thead class="thead-light">
+				<tr>				
+				<th>ISBN number</th>
+				<th>Title</th>
+				<th>Author </th>
+				<th>Book's information </th>
+				</tr>
+			<tbody>
+				
+				{% for isbn, title, author in coincidence %}
+					<tr>
+					<td>{{isbn}}</td>
+					<td>{{title}}</td>
+					<td>{{author}}</td>				
+					<td>
+						<a href="{{ url_for('more', book_isbn = isbn) }}">See more...</a>
+					</td>
+					</tr>
+				{% endfor %}
+				
+			</tbody>
+		</table>
+	
+	{% endif %}
+		{{ title }}
+		
+		
 {% endblock %}

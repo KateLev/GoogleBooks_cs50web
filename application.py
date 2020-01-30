@@ -69,14 +69,72 @@ def reg_form():
 @app.route("/logout", methods=["POST", "GET"])		
 def logout():
 	print(session.sid)
-	session['username'] = None
-	print (session['username'])
-	return render_template("index.html", username = session['username'])
+	session.clear()	
+	return render_template("index.html", username = "Anon")
 
 @app.route("/search", methods=["POST"])	
 def search():
 	searchFor = request.form.get("Search")
-	title = db.execute("SELECT title from books WHERE isbn=:isbn", {"isbn":searchFor}).fetchall()
+	checker = 0
+	searchFor = searchFor.strip()
 	
-	return render_template("index.html", title=title[0])
+	#return empty index page
+	if (searchFor == ""):
+		return render_template("index.html", checker = checker)	
+	
+	#search for coincidence	
+	isbn_coincidence = db.execute(f"SELECT isbn, title, author from books WHERE isbn LIKE '%{searchFor}%'").fetchall()
+	titles_coincidence = db.execute(f"SELECT isbn, title, author from books WHERE title LIKE '%{searchFor}%'").fetchall()
+	author_coincidence = db.execute(f"SELECT isbn, title, author from books WHERE author LIKE '%{searchFor}%'").fetchall()
+	
+	# Way to see how query is look like	
+	#	print(str((f"SELECT isbn, title, author from books WHERE isbn LIKE '%{searchFor}%'")))
+	
+	coincidence = []
+	coincidence.extend(isbn_coincidence)
+	coincidence.extend(titles_coincidence)
+	coincidence.extend(author_coincidence)
+	
+	#return empty index page
+	if coincidence == []:
+		checker = 1
+		return render_template("index.html", checker = checker)	
+	
+	checker = 2
+	
+	print("searchFor", '+', searchFor, '+')
+	print("type", type(coincidence))
+	print("searchFor", type(searchFor))
+	
+	lenght = len(coincidence)
+	return render_template("index.html", checker = checker, coincidence = coincidence, lenght = lenght)
 
+@app.route("/books/<string:book_isbn>", methods=["GET"])
+def more(book_isbn):
+
+	#split to remove tab symbols, [0] because after split method book_isbn became a list
+	book_isbn = book_isbn.split()[0]
+	
+	# https://www.goodreads.com/api/index taken from api
+	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "tZLOtICC4yMSdeSIbKV0lQ", "isbns": book_isbn})
+	
+	#	res.json() is a dictionary
+	data = res.json()
+	
+	# ways to access the data. We can return many books in request, so I need to access 0 element of an array
+	
+	#print ("""data["books"]""", data["books"])
+	#print ("""data["books"][0]""", data["books"][0])
+	#print ("""data["books"][0][average_rating]""", data["books"][0]['average_rating'])
+	
+	avg_rating = data["books"][0]['average_rating']
+	ratings_count = data["books"][0]['ratings_count']
+	book_info = db.execute(f"SELECT title, author, year from books WHERE isbn=:book_isbn", {"book_isbn":book_isbn}).fetchone()
+	book_title = book_info["title"]
+	book_author = book_info["author"]
+	book_year = book_info["year"]
+	return render_template ("book.html", avg_rating = avg_rating, \
+	ratings_count = ratings_count, book_title = book_title, book_author = book_author, \
+	book_isbn = book_isbn, book_year = book_year) 
+	
+	
