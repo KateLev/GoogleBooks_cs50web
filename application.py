@@ -21,7 +21,7 @@ Session(app)
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
-current_user_id = 0
+# current_user_id = 0
 
 @app.route("/", methods=["GET", "POST"])
 def index():		
@@ -29,7 +29,7 @@ def index():
 	if 'username' in session:
 		username = session['username']
 		return render_template("index.html", username = username)
-	return render_template("index.html", username = "Anonymous user")
+	return render_template("login.html", username = "Anonymous user")
 
 	
 @app.route("/book")
@@ -39,7 +39,13 @@ def book():
 	
 @app.route("/login", methods=["POST", "GET"])
 def login():
-	return "You are not logged in"
+	username = request.form.get("username")
+	password = request.form.get("password")
+	session["user_id"] = db.execute("SELECT id FROM users WHERE name=:name and pass=:password", {"name":username, "password":password})
+	if session["user_id"]:
+		return f"Welcome, {id}"
+	else:
+		return "Please, log in"
 	
 @app.route("/reg", methods=["POST", "GET"])
 def reg():	
