@@ -1,6 +1,7 @@
 import os
 import requests
 import flask_login
+import json
 
 from flask import Flask, session, render_template, request
 from flask_session import Session
@@ -141,6 +142,14 @@ def more(book_isbn):
 	book_year = book_info["year"]
 	return render_template ("book.html", avg_rating = avg_rating, \
 	ratings_count = ratings_count, book_title = book_title, book_author = book_author, \
-	book_isbn = book_isbn, book_year = book_year) 
+	book_isbn = book_isbn, book_year = book_year)
+
+@app.route("/api/<string:book_isbn>", methods=["GET"])
+def book_json(book_isbn):
+	book_info = db.execute(f"SELECT title, author, year from books WHERE isbn=:book_isbn", {"book_isbn":book_isbn}).fetchone()
+	print(book_info)
+	print(json.dumps({'author':book_info[1],'title':book_info[0], 'year':book_info[2]}, sort_keys=True, indent=4))
+	print(json.dumps({'4': 5, '6': 7}, sort_keys=True, indent=4))
+	return render_template("book_api.html", author = book_info[1], title =  book_info[0], year = book_info[2])
 	
 	
