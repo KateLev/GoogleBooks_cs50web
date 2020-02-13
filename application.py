@@ -3,7 +3,7 @@ import requests
 import flask_login
 import json
 
-from flask import Flask, session, render_template, request
+from flask import Flask, session, render_template, request, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -147,9 +147,14 @@ def more(book_isbn):
 @app.route("/api/<string:book_isbn>", methods=["GET"])
 def book_json(book_isbn):
 	book_info = db.execute(f"SELECT title, author, year from books WHERE isbn=:book_isbn", {"book_isbn":book_isbn}).fetchone()
-	print(book_info)
-	print(json.dumps({'author':book_info[1],'title':book_info[0], 'year':book_info[2]}, sort_keys=True, indent=4))
-	print(json.dumps({'4': 5, '6': 7}, sort_keys=True, indent=4))
-	return render_template("book_api.html", author = book_info[1], title =  book_info[0], year = book_info[2])
+	#print(book_info)
+	#print(json.dumps({'author':book_info[1],'title':book_info[0], 'year':book_info[2]}, sort_keys=True, indent=4))
+	#print(json.dumps({'4': 5, '6': 7}, sort_keys=True, indent=4))
+	if (book_info is None):
+		return render_template("error.html", error_number = "404")
+	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "tZLOtICC4yMSdeSIbKV0lQ", "isbns": book_isbn})
+	data = res.json()
+	
+	return jsonify(title =  str(book_info[0]).strip(), author = str(book_info[1]).strip(),  year = book_info[2], isbn = book_isbn, average_score = data["books"][0]['average_rating'], ratings_count = data["books"][0]['ratings_count'])
 	
 	
