@@ -22,15 +22,15 @@ Session(app)
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
-# current_user_id = 0
+current_user_id = 0
 
 @app.route("/", methods=["GET", "POST"])
 def index():		
 	# check if user is currently logged in
 	if 'username' in session:
 		username = session['username']
-		return render_template("index.html", username = username)
-	return render_template("login.html", username = "Anonymous user")
+		return render_template("index.html")
+	return render_template("login.html")
 
 	
 @app.route("/book")
@@ -41,12 +41,19 @@ def book():
 @app.route("/login", methods=["POST", "GET"])
 def login():
 	username = request.form.get("username")
-	password = request.form.get("password")
-	session["user_id"] = db.execute("SELECT id FROM users WHERE name=:name and pass=:password", {"name":username, "password":password})
-	if session["user_id"]:
-		return f"Welcome, {id}"
+	print('username', username, '\n\n' )
+	password = request.form.get("password")	
+	print('password', password, '\n\n' )
+	id = db.execute("SELECT id FROM users WHERE name=:name and pass=:password", {"name":username, "password":password}).fetchone() 
+	
+	if id: #if it exist		
+		session["user_id"] = id[0]
+		print("session['user_id']", session["user_id"]  )
+		return render_template("index.html", username = username)
 	else:
-		return "Please, log in"
+		return render_template("login.html", error = "Wrong username or password")
+	
+
 	
 @app.route("/reg", methods=["POST", "GET"])
 def reg():	
@@ -68,16 +75,16 @@ def reg_form():
 		current_user_id = db.execute("SELECT id from users WHERE name=:name", {"name":username}).fetchone() 		
 		session["user_id"] = current_user_id[0]			
 		session['username'] = username		
-		return render_template("index.html")
+		return render_template("index.html", username = username)
 		
 	else:
-		return "The name is already exist"
+		return render_template("reg.html", error = "The name is already exist")
 
 @app.route("/logout", methods=["POST", "GET"])		
 def logout():
 	print(session.sid)
 	session.clear()	
-	return render_template("index.html", username = "Anon")
+	return render_template("login.html", error = "You are sucessfully logged out")
 
 @app.route("/search", methods=["POST"])	
 def search():
