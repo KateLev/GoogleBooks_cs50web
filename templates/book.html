@@ -1,7 +1,28 @@
 {% extends "layout.html" %}
 {% block body %}
-  <h2>Book page</h2>
+  <br>
+  <h3>{{ book_title }} by {{book_author}} </h3>
+  <p>Was written in {{book_year}}</p>
+  <p>Average rating is {{ avg_rating }} by {{ratings_count}} users.</p>  
+    
+	<form action="{{ url_for('book_review', book_isbn = book_isbn) }}" method=post>
+		<div class="form-group">
+			<label for="review">Your review:</label>
+			<textarea name="review" class="form-control" rows="3" required></textarea>
+		</div>
+		<div class="form-group">
+			<label for="rating">Rating (between 1 and 5):</label>
+			<input type="number" name="rating" min = "1" max = "5" class="col-md-1" required><br>
+		</div>
+		<div class="form-group">
+			<button class="btn btn-primary" name="button">Submit</button>
+		</div>
+	</form>
+  
 	<p>Average rating is {{ avg_rating }} by {{ratings_count}} users. Title is {{book_title}}, author is {{book_author}},
 	isbn is {{book_isbn}}, year is {{book_year}}
 	</p>
+	{% if error %}<b>{{error}}</b>
+	{% endif %}
+	
 {% endblock %}

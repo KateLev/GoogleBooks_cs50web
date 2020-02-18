@@ -1,6 +1,11 @@
 {% extends "layout.html" %}
 {% block body %}
 
-	Sorry, we have {{error_number}} error!
-
+	<p>Sorry, we have {{error_number}} error!</p>
+	{% if error %}
+		<b>{{ error }}:</b>
+	{% endif %}
+	{% if error_number == '33' %}
+	<i>{{ review }}</i>
+	{% endif %}
 {% endblock %}

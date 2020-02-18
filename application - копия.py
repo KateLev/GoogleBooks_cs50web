@@ -27,14 +27,9 @@ current_user_id = 0
 @app.route("/", methods=["GET", "POST"])
 def index():		
 	# check if user is currently logged in
-#	if 'username' in session:
-#		username = session['username']
-#		return render_template("index.html")
-#	return render_template("login.html")
-	if (session):
-		username_list = db.execute("SELECT name FROM users WHERE id=:id", {"id":session['user_id']}).fetchone()
-		username = username_list[0]
-		return render_template("index.html", username = username)
+	if 'username' in session:
+		username = session['username']
+		return render_template("index.html")
 	return render_template("login.html")
 
 	
@@ -83,13 +78,13 @@ def reg_form():
 		return render_template("index.html", username = username)
 		
 	else:
-		return render_template("reg.html", error = "The name is already exist")
+		return render_template("Reg.html", error = "The name is already exist")
 
 @app.route("/logout", methods=["POST", "GET"])		
 def logout():
 	print(session.sid)
 	session.clear()	
-	return render_template("login.html", error = "You are sucessfully logged out")
+	return render_template("index.html", username = "Anon")
 
 @app.route("/search", methods=["POST"])	
 def search():
@@ -128,7 +123,7 @@ def search():
 	lenght = len(coincidence)
 	return render_template("index.html", checker = checker, coincidence = coincidence, lenght = lenght)
 
-@app.route("/books/<string:book_isbn>", methods=["GET", "POST"])
+@app.route("/books/<string:book_isbn>", methods=["GET"])
 def more(book_isbn):
 
 	#split to remove tab symbols, [0] because after split method book_isbn became a list
@@ -159,34 +154,14 @@ def more(book_isbn):
 @app.route("/api/<string:book_isbn>", methods=["GET"])
 def book_json(book_isbn):
 	book_info = db.execute(f"SELECT title, author, year from books WHERE isbn=:book_isbn", {"book_isbn":book_isbn}).fetchone()
-	
+	#print(book_info)
+	#print(json.dumps({'author':book_info[1],'title':book_info[0], 'year':book_info[2]}, sort_keys=True, indent=4))
+	#print(json.dumps({'4': 5, '6': 7}, sort_keys=True, indent=4))
 	if (book_info is None):
 		return render_template("error.html", error_number = "404")
 	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "tZLOtICC4yMSdeSIbKV0lQ", "isbns": book_isbn})
 	data = res.json()
 	
 	return jsonify(title =  str(book_info[0]).strip(), author = str(book_info[1]).strip(),  year = book_info[2], isbn = book_isbn, average_score = data["books"][0]['average_rating'], ratings_count = data["books"][0]['ratings_count'])
-
-@app.route("/book_review/<string:book_isbn>", methods=["POST", "GET"])
-def book_review(book_isbn):
 	
-	user_id = session['user_id']
-	review = request.form.get("review")
-	rating = request.form.get("rating")
 	
-	#I didn't understand why in this query heroku needs quotes within Table name, but it doesn't work without them
-	check = db.execute(f'SELECT review, rating FROM "Rating" WHERE user_id=:user_id AND isbn=:book_isbn', {"user_id":user_id, "book_isbn":book_isbn}).fetchone()
-	
-	if (check):		
-		return render_template('error.html', error = "You've done a review earlier", 
-								error_number = "33", review = check[0])
-	else:		
-		db.execute(f"""INSERT INTO "Rating" (user_id, review, isbn, rating) VALUES ('{user_id}', '{review}', '{book_isbn}', '{rating}')""")
-		db.commit()
-		print("Need to insert")
-		
-	#db.execute("INSERT into booksRating VALUES")
-	return render_template ('book_review.html', book_isbn = book_isbn, review = review, rating = rating )
-	
-
-
