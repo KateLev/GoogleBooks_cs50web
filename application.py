@@ -138,23 +138,20 @@ def more(book_isbn):
 	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "tZLOtICC4yMSdeSIbKV0lQ", "isbns": book_isbn})
 	
 	#	res.json() is a dictionary
-	data = res.json()
-	
-	# ways to access the data. We can return many books in request, so I need to access 0 element of an array
-	
-	#print ("""data["books"]""", data["books"])
-	#print ("""data["books"][0]""", data["books"][0])
-	#print ("""data["books"][0][average_rating]""", data["books"][0]['average_rating'])
-	
+	data = res.json()		
 	avg_rating = data["books"][0]['average_rating']
 	ratings_count = data["books"][0]['ratings_count']
 	book_info = db.execute(f"SELECT title, author, year from books WHERE isbn=:book_isbn", {"book_isbn":book_isbn}).fetchone()
 	book_title = book_info["title"]
 	book_author = book_info["author"]
 	book_year = book_info["year"]
+	reviews = db.execute(f'SELECT review FROM "Rating" WHERE isbn=:book_isbn', {"book_isbn":book_isbn}).fetchall()
+	for review in reviews:
+		print("review", review[0])
+	print (reviews)
 	return render_template ("book.html", avg_rating = avg_rating, \
 	ratings_count = ratings_count, book_title = book_title, book_author = book_author, \
-	book_isbn = book_isbn, book_year = book_year)
+	book_isbn = book_isbn, book_year = book_year, reviews = reviews )
 
 @app.route("/api/<string:book_isbn>", methods=["GET"])
 def book_json(book_isbn):

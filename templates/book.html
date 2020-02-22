@@ -4,7 +4,14 @@
   <h3>{{ book_title }} by {{book_author}} </h3>
   <p>Was written in {{book_year}}</p>
   <p>Average rating is {{ avg_rating }} by {{ratings_count}} users.</p>  
-    
+    {% if reviews %}
+   <h4>Reviews</h4>
+		<ul>
+			{% for review in reviews %}
+				<li><i>{{ review [0] }}</i></li>
+			{% endfor %}
+		</ul>
+   {% endif %}
 	<form action="{{ url_for('book_review', book_isbn = book_isbn) }}" method=post>
 		<div class="form-group">
 			<label for="review">Your review:</label>
@@ -19,9 +26,7 @@
 		</div>
 	</form>
   
-	<p>Average rating is {{ avg_rating }} by {{ratings_count}} users. Title is {{book_title}}, author is {{book_author}},
-	isbn is {{book_isbn}}, year is {{book_year}}
-	</p>
+	
 	{% if error %}<b>{{error}}</b>
 	{% endif %}
 	
